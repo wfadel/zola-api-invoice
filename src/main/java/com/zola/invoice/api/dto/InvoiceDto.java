@@ -3,14 +3,30 @@ package com.zola.invoice.api.dto;
 import java.io.Serializable;
 import java.util.Date;
 
+import javax.validation.constraints.NotNull;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class InvoiceDto implements Serializable {
 	private static final long serialVersionUID = 3040125111929707622L;
 
 	private Long id;
+	@NotNull
+	@JsonProperty("invoice_number")
 	private String invoiceNumber;
+	@NotNull
+	@JsonProperty("po_number")
 	private String poNumber;
+	@JsonFormat(pattern = "yyyy-MM-dd")
+	@NotNull
+	@JsonProperty("due_date")
 	private Date dueDate;
+	@NotNull
+	@JsonProperty("amount_cents")
 	private Long amountCents;
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+	@JsonProperty("created_at")
 	private Date createdAt;
 
 	private InvoiceDto() {
