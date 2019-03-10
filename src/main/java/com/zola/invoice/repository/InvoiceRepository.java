@@ -6,5 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface InvoiceRepository extends ZolaRepository<Invoice, Long> {
-	Page<Invoice> findByInvoiceNumberOrPoNumber(String invoiceNumber, String inoiceName, Pageable pageable);
+	Page<Invoice> findByInvoiceNumberOrPoNumberOrderByCreatedAtDesc(String invoiceNumber, String inoiceName, Pageable pageable);
 }

@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import javax.annotation.Resource;
+import javax.validation.Valid;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,20 +23,22 @@ public class InvoiceController {
 	@Resource
 	private InvoiceApi invoiceService;
 
-	@PostMapping
-	public CompletableFuture<ResponseEntity<InvoiceDto>> createInvoice(@RequestBody InvoiceDto invoiceDto) {
+	@PostMapping(consumes = "application/json", produces = "application/json")
+	public CompletableFuture<ResponseEntity<InvoiceDto>> createInvoice(@RequestBody @Valid InvoiceDto invoiceDto) {
 		return invoiceService.createInvoice(invoiceDto)
 				.thenApply(result -> new ResponseEntity<>(result, HttpStatus.CREATED));
 	}
 
-	@GetMapping
+	@GetMapping(produces = "application/json")
 	public CompletableFuture<ResponseEntity<List<InvoiceDto>>> searchInvoices(
-			@RequestParam("invoiceNumber") String invoiceNumber, @RequestParam("poNumber") String poNumber,
+			@RequestParam(name = "invoice_number", required = false) String invoiceNumber,
+			@RequestParam(name = "po_number", required = false) String poNumber,
 			@RequestParam(name = "offset", defaultValue = "0") int offset,
 			@RequestParam(name = "limit", defaultValue = "10") int limit) {
 		InvoiceFilter invoiceFilter = new InvoiceFilter.InvoiceFilterBuilder().invoiceNumber(invoiceNumber)
 				.poNumber(poNumber).offset(offset).limit(limit).build();
-		return null;
+		return invoiceService.searchInvoices(invoiceFilter)
+				.thenApply(result -> new ResponseEntity<>(result, HttpStatus.OK));
 	}
 
 }

@@ -2,10 +2,13 @@ package com.zola.invoice.service;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
 import org.springframework.core.convert.ConversionService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,10 +36,16 @@ public class InvoiceService implements InvoiceApi {
 		return CompletableFuture.completedFuture(conversionService.convert(invoice, InvoiceDto.class));
 	}
 
+	@Async
+	@Transactional
 	@Override
 	public CompletableFuture<List<InvoiceDto>> searchInvoices(InvoiceFilter invoiceFilter) {
-		// TODO Auto-generated method stub
-		return null;
+		Page<Invoice> invoicePage = invoiceRepository.findByInvoiceNumberOrPoNumberOrderByCreatedAtDesc(
+				invoiceFilter.getInvoiceNumber(), invoiceFilter.getPoNumber(),
+				PageRequest.of(invoiceFilter.getOffset(), invoiceFilter.getLimit()));
+		List<InvoiceDto> result = invoicePage.stream()
+				.map(invoice -> conversionService.convert(invoice, InvoiceDto.class)).collect(Collectors.toList());
+		return CompletableFuture.completedFuture(result);
 	}
 
 }
