@@ -15,6 +15,7 @@ import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.web.client.HttpClientErrorException;
 
 import com.zola.invoice.api.InvoiceApi;
 import com.zola.invoice.api.dto.InvoiceDto;
@@ -53,5 +54,17 @@ public class InvoiceControllerTest {
 		assertEquals("in01", actual.get(0).getInvoiceNumber());
 		assertEquals("po01", actual.get(0).getPoNumber());
 		assertEquals("123", actual.get(0).getAmountCents().toString());
+	}
+
+	@Test
+	public void createInvoiceMissingInvoiceNumber() {
+		InvoiceDto invoiceDto = new InvoiceDto.InvoiceDtoBuilder().poNumber("po01").amountCents(123L)
+				.dueDate(new Date()).build();
+		// create the invoice
+		try {
+			this.invoiceClient.createInvoice(invoiceDto);
+		} catch (HttpClientErrorException e) {
+			assertTrue(e.getStatusCode().is4xxClientError());
+		}
 	}
 }
